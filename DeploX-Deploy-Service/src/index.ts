@@ -19,7 +19,7 @@ async function main() {
     try {
       await downloadS3Folder(`output/${id}`);
       await buildProject(id);
-      copyFinalDist(id);
+      await copyFinalDist(id);
       await publisher.hSet("status", id, "deployed");
       console.log(`Deployment succeeded for ${id}`);
     } catch (err: any) {

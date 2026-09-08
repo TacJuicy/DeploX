@@ -58,7 +58,7 @@ export async function downloadS3Folder(prefix: string) {
   console.log("All files downloaded successfully.");
 }
 
-export function copyFinalDist(id: string) {
+export async function copyFinalDist(id: string) {
   const possibleFolders = [
     path.join(__dirname, `output/${id}/frontend/dist`),
     path.join(__dirname, `output/${id}/dist`)
@@ -67,14 +67,15 @@ export function copyFinalDist(id: string) {
   let folderPath = possibleFolders.find(fs.existsSync);
 
   if (!folderPath) {
-    console.error("No dist folder found for ID:", id);
-    return;
+    throw new Error(`No dist folder found for ID: ${id}`);
   }
 
   const allFiles = getAllFiles(folderPath);
-  allFiles.forEach((file) => {
-    uploadFile(`dist/${id}/` + file.slice(folderPath.length + 1), file);
-  });
+  await Promise.all(
+    allFiles.map((file) =>
+      uploadFile(`dist/${id}/` + file.slice(folderPath.length + 1), file)
+    )
+  );
 }
 
 const getAllFiles = (folderPath: string): string[] => {
